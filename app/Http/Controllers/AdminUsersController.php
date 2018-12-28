@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\UsersRequest;
+use App\Photo;
+use App\Role;
+use App\User;
+//use Illuminate\Http\Request;
 
 class AdminUsersController extends Controller
 {
@@ -13,8 +17,12 @@ class AdminUsersController extends Controller
      */
     public function index()
     {
-        //
-        return view('admin.users.index');
+
+
+        $users = User::all();
+        return view('admin.users.index',compact('users'));
+
+
     }
 
     /**
@@ -25,7 +33,8 @@ class AdminUsersController extends Controller
     public function create()
     {
         //
-        return view('admin.users.create');
+        $roles=Role::pluck('name','id')->all();
+        return view('admin.users.create',compact('roles'));
     }
 
     /**
@@ -34,9 +43,23 @@ class AdminUsersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UsersRequest $request)
     {
         //
+        $input = $request->all();
+
+        if($file=$request->file('photo_id'))
+        {
+            $file=$request->file('photo_id');
+            $name=time(). $file->getClientOriginalName();
+            $file->move('images',$name);
+            $photo=Photo::create(['file'=>$name]);
+            $input['photo_id']=$photo->id;
+        }
+
+        $input['password']=bcrypt($request->password);
+        User::create($input);
+        return redirect('/admin/users');
     }
 
     /**
@@ -59,7 +82,9 @@ class AdminUsersController extends Controller
     public function edit($id)
     {
         //
-        return view('admin.users.edit');
+        $user=User::findOrFail($id);
+        $roles=Role::pluck('name','id')->all();
+        return view('admin.users.edit',compact('user','roles'));
     }
 
     /**
@@ -69,7 +94,7 @@ class AdminUsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UsersRequest $request, $id)
     {
         //
     }
