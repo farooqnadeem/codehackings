@@ -10,10 +10,11 @@ class Photo extends Model
     //protected $primaryKey='photo_id';
     protected $fillable=['file'];
 
-    protected $uploads= '../images/';
+    protected $uploads=  '/images/';
 
     public function getFileAttribute($photo)
     {
-        return $this->uploads.$photo;
+        return    url('/').$this->uploads.$photo;
     }
+
 }
