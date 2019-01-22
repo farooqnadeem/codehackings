@@ -16,5 +16,4 @@ class Photo extends Model
     {
         return    url('/').$this->uploads.$photo;
     }
-
 }

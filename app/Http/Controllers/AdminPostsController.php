@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\Photo;
 use App\Post;
 use App\Http\Requests\PostCreateRequest;
@@ -19,7 +20,7 @@ class AdminPostsController extends Controller
     {
 
         $posts = Post::all();
-
+        //return $posts[0]->user->name;
 
         return view('admin.posts.index',compact('posts'));
     }
@@ -32,7 +33,8 @@ class AdminPostsController extends Controller
     public function create()
     {
         //
-        return view('admin.posts.create');
+        $categories=Category::pluck('name','id')->all();
+        return view('admin.posts.create',compact('categories'));
     }
 
     /**
@@ -82,6 +84,9 @@ class AdminPostsController extends Controller
     public function edit($id)
     {
         //
+        $post = Post::findOrFail($id);
+        $categories= Category::pluck('name','id')->all();
+        return view('admin.posts.edit',compact('post','categories'));
     }
 
     /**
@@ -91,9 +96,24 @@ class AdminPostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(PostCreateRequest $request, $id)
     {
         //
+        $input= $request->all();
+       // $user=Auth::user();
+
+        if($file=$request->file('photo_id'))
+        {
+            //return 'it work';
+            $name=time().$file->getClientOriginalName();
+            $file->move('images',$name);
+            $photo = Photo::create(['file'=>$name]);
+
+            $input['photo_id']=$photo->id;
+        }
+
+        Auth::user()->post()->whereId($id)->first()->update($input);
+        return  redirect('admin/posts');
     }
 
     /**
@@ -105,5 +125,11 @@ class AdminPostsController extends Controller
     public function destroy($id)
     {
         //
+        $post= Post::findOrFail($id);
+        $test =explode('/',$post->photo->file);
+        $filename= $test[count($test)-1];
+        unlink(public_path('images/').$filename);
+        $post->delete();
+        return redirect('/admin/posts');
     }
 }
