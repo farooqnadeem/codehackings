@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Comment;
 use App\Photo;
 use App\Post;
 use App\Http\Requests\PostCreateRequest;
 use http\Env\Request;
 use Illuminate\Support\Facades\Auth;
+use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
 
 class AdminPostsController extends Controller
 {
@@ -132,4 +134,21 @@ class AdminPostsController extends Controller
         $post->delete();
         return redirect('/admin/posts');
     }
+    public function post($id)
+    {
+        $post = Post::findOrFail($id);
+        $comments= $post->comment()->whereIsActive(1)->get();
+
+        return view('post',compact('post','comments'));
+    }
+
+   /* public function post($slug)
+    {
+       // $post = Post::findBySlugOrFail($slug);
+
+        $post = Post::where('alternate','=',$slug);
+        $comments= $post->comment()->whereIsActive(1)->get();
+
+        return view('post',compact('post','comments'));
+    }*/
 }

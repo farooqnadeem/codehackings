@@ -26,6 +26,8 @@
                 <td>{{$post->category ? $post->category->name : 'unrecognized'}}</td>
                 <td>{{$post->title}}</td>
                 <td>{{ str_limit($post->body,35) }}</td>
+                <td><a href="{{route('home.post',$post->id)}}">View Post</a> </td>
+                <td><a href="{{action('PostCommentsController@show',$post->id)}}">View Comments</a></td>
                 <td>{{$post->created_at->diffForhumans()}}</td>
                 <td>{{$post->updated_at->diffForhumans()}}</td>
             </tr>
